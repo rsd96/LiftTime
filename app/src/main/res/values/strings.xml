@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Lift Time</string>
+    <string name="notification_title">Lift Time</string>
+    <string name="notification_message">00:00</string>
+    <string name="ticker_text">You have 0 mins rest time left</string>
+    <string name="shared_pref_name">LIFT_TIME_SHARED_PREF</string>
+    <string name="min_key">MIN_KEY</string>
+    <string name="sec_key">SEC_KEY</string>
+    <string name="service_key">SERVICE_KEY</string>
+</resources>
