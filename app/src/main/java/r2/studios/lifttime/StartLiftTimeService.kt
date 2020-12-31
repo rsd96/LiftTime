@@ -22,7 +22,7 @@ class StartLiftTimeService: Service() {
     val screenWakeReceiver = ScreenWakeReceiver()
     private val START_LIFT_NOTIFICATION_ID = 1234
     val CHANNEL_ID = "ForegroundServiceChannel"
-    val CHANNEL_NAME = "Lift Time Notification Channel"
+    val CHANNEL_NAME = "Lift Time Notification"
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
@@ -66,7 +66,7 @@ class StartLiftTimeService: Service() {
     private fun createNotificationChannel(channelId: String, channelName: String): String{
         val chan = NotificationChannel(
             channelId,
-            channelName, NotificationManager.IMPORTANCE_HIGH
+            channelName, NotificationManager.IMPORTANCE_DEFAULT
         )
         chan.lightColor = Color.BLUE
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE

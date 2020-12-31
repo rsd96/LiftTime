@@ -19,8 +19,11 @@ import androidx.core.app.NotificationCompat
 class RestTimerService: Service() {
 
     private val TIMER_NOTIFICATION_ID = 4321
-    val CHANNEL_ID = "TimerChannel"
-    val CHANNEL_NAME = "Lift Time Timer Channel"
+    private val ALARM_NOTIFICATION_ID = 6789
+    val TIMER_CHANNEL_ID = "TimerChannel"
+    val TIMER_CHANNEL_NAME = "Timer"
+    val ALARM_CHANNEL_ID = "AlarmChannel"
+    val ALARM_CHANNEL_NAME = "Alarm"
     lateinit var timer : CountDownTimer
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -36,14 +39,15 @@ class RestTimerService: Service() {
         val currentTime = System.currentTimeMillis()
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            createNotificationChannel(CHANNEL_ID, CHANNEL_NAME)
+            createNotificationChannel(TIMER_CHANNEL_ID, TIMER_CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
+            createNotificationChannel(ALARM_CHANNEL_ID, ALARM_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH)
         }
 
         // Get time in milliseconds
         val timeInMilli = ((min * 60 * 1000) + (sec * 1000)).toLong()
         val timeToCountDown = currentTime + timeInMilli
 
-        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
+        val notificationBuilder = NotificationCompat.Builder(this, TIMER_CHANNEL_ID)
         val notification: Notification = notificationBuilder
             .setContentTitle(getText(R.string.notification_title))
             .setContentText("${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}")
@@ -74,12 +78,25 @@ class RestTimerService: Service() {
 
             override fun onFinish() {
                 // finish rest time, alert user
+//                val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+//                notificationBuilder.setContentText("LIFT TIME!").setOngoing(false)
+//                notificationManager.notify(
+//                    TIMER_NOTIFICATION_ID,
+//                    notificationBuilder.build()
+//                )
+
+                stopForeground(true)
+
+                val alarmNotificationBuilder = NotificationCompat.Builder(this@RestTimerService, ALARM_CHANNEL_ID)
+                val alarmNotification: Notification = alarmNotificationBuilder
+                    .setContentTitle(getText(R.string.notification_title))
+                    .setContentText("Rest time over!")
+                    .setSmallIcon(R.drawable.ic_notif_gym)
+                    .setTicker(getText(R.string.ticker_text))
+                    .build()
+
                 val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-                notificationBuilder.setContentText("LIFT TIME!").setOngoing(false)
-                notificationManager.notify(
-                    TIMER_NOTIFICATION_ID,
-                    notificationBuilder.build()
-                )
+                notificationManager.notify(ALARM_NOTIFICATION_ID, alarmNotification)
             }
         }.start()
 
@@ -87,10 +104,10 @@ class RestTimerService: Service() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannel(channelId: String, channelName: String): String{
+    private fun createNotificationChannel(channelId: String, channelName: String, importance: Int): String{
         val chan = NotificationChannel(
             channelId,
-            channelName, NotificationManager.IMPORTANCE_HIGH
+            channelName, importance
         )
         chan.lightColor = Color.BLUE
         chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE

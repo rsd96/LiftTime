@@ -4,12 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -34,11 +36,11 @@ class MainFragment : Fragment() {
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
         viewModel.min.observe(this, Observer {
-                min -> tvMin.text = viewModel.min.value.toString().padStart(2, '0')
+                min -> etMin.setText(viewModel.min.value.toString().padStart(2, '0'))
         })
 
         viewModel.sec.observe(this, Observer {
-                sec -> tvSec.text = viewModel.sec.value.toString().padStart(2, '0')
+                sec -> etSec.setText(viewModel.sec.value.toString().padStart(2, '0'))
         })
 
         viewModel.serviceRunning.observe(this, Observer {
@@ -65,13 +67,40 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-        btnMinAdd.setOnClickListener {
-            viewModel.addMin()
-        }
 
-        btnSecAdd.setOnClickListener {
-            viewModel.addSec()
-        }
+
+        etMin.addTextChangedListener(object: TextWatcher {
+            private var ignoreChange = false
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun afterTextChanged(text: Editable?) {
+                if (!ignoreChange) {
+                    ignoreChange = true
+                    etMin.setText(text.toString().padStart(2, '0'))
+                    viewModel.setMin(Integer.parseInt(text.toString()))
+                    ignoreChange = false
+                }
+            }
+        })
+
+        etSec.addTextChangedListener(object: TextWatcher {
+            private var ignoreChange = false
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun afterTextChanged(text: Editable?) {
+                if (!ignoreChange) {
+                    ignoreChange = true
+                    etSec.setText(text.toString().padStart(2, '0'))
+                    viewModel.setSec(Integer.parseInt(text.toString()))
+                    ignoreChange = false
+
+                }
+            }
+        })
 
         switchGymTime.setOnClickListener {
             Log.d("MainFragment", "run service")
