@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.Editable
+import android.text.InputType
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
@@ -47,13 +48,11 @@ class MainFragment : Fragment() {
                 serviceRunning -> switchGymTime.isChecked = viewModel.serviceRunning.value!!
         })
 
-
         val sharedPref = activity?.getSharedPreferences(getString(R.string.shared_pref_name), Context.MODE_PRIVATE) ?: return
 
         viewModel.setMin(sharedPref.getInt(getString(R.string.min_key), 0))
         viewModel.setSec(sharedPref.getInt(getString(R.string.sec_key), 0))
         viewModel.setServiceRunning(sharedPref.getBoolean(getString(R.string.service_key), false))
-
     }
 
     override fun onCreateView(
@@ -66,43 +65,44 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Hide cursor and keyboard when clicked on edittext
+        etMin.inputType = InputType.TYPE_NULL
+        etSec.inputType = InputType.TYPE_NULL
 
+//        etMin.addTextChangedListener(object: TextWatcher {
+//            private var ignoreChange = false
+//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+//
+//            override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+//
+//            override fun afterTextChanged(text: Editable?) {
+//                if (!ignoreChange) {
+//                    ignoreChange = true
+//                    etMin.setText(text.toString().padStart(2, '0'))
+//                    viewModel.setMin(Integer.parseInt(text.toString()))
+//                    ignoreChange = false
+//                }
+//            }
+//        })
+//
+//        etSec.addTextChangedListener(object: TextWatcher {
+//            private var ignoreChange = false
+//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+//
+//            override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+//
+//            override fun afterTextChanged(text: Editable?) {
+//                if (!ignoreChange) {
+//                    ignoreChange = true
+//                    etSec.setText(text.toString().padStart(2, '0'))
+//                    viewModel.setSec(Integer.parseInt(text.toString()))
+//                    ignoreChange = false
+//
+//                }
+//            }
+//        })
 
-
-        etMin.addTextChangedListener(object: TextWatcher {
-            private var ignoreChange = false
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun afterTextChanged(text: Editable?) {
-                if (!ignoreChange) {
-                    ignoreChange = true
-                    etMin.setText(text.toString().padStart(2, '0'))
-                    viewModel.setMin(Integer.parseInt(text.toString()))
-                    ignoreChange = false
-                }
-            }
-        })
-
-        etSec.addTextChangedListener(object: TextWatcher {
-            private var ignoreChange = false
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun afterTextChanged(text: Editable?) {
-                if (!ignoreChange) {
-                    ignoreChange = true
-                    etSec.setText(text.toString().padStart(2, '0'))
-                    viewModel.setSec(Integer.parseInt(text.toString()))
-                    ignoreChange = false
-
-                }
-            }
-        })
-
-        switchGymTime.setOnClickListener {
+        switchGymTime.setOnCheckedChangedListener{
             Log.d("MainFragment", "run service")
             if (viewModel.serviceRunning.value!!) {
                 stopService()

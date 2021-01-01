@@ -40,7 +40,7 @@ class StartLiftTimeService: Service() {
         val notification: Notification = notificationBuilder
                 .setContentTitle(getText(R.string.notification_title))
                 .setContentText("Lift Time ON!")
-                .setSmallIcon(R.drawable.ic_notif_gym)
+                .setSmallIcon(R.drawable.ic_dumbbell)
                 .setContentIntent(pendingIntent)
                 .setTicker(getText(R.string.ticker_text))
                 .build()

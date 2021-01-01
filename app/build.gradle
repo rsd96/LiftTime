@@ -5,6 +5,10 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 29
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     defaultConfig {
         applicationId "r2.studios.lifttime"
         minSdkVersion 16
@@ -36,5 +40,11 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    // fancy switch view
+    implementation 'com.github.sigma1326:NiceSwitch:1.0'
+    // material views
+    implementation 'com.google.android.material:material:1.2.1'
+    // numpad
+    implementation 'com.konaire.numeric-keyboard:numeric-keyboard:1.1.0'
 
 }

@@ -51,7 +51,7 @@ class RestTimerService: Service() {
         val notification: Notification = notificationBuilder
             .setContentTitle(getText(R.string.notification_title))
             .setContentText("${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}")
-            .setSmallIcon(R.drawable.ic_notif_gym)
+            .setSmallIcon(R.drawable.ic_dumbbell)
             .setTicker(getText(R.string.ticker_text))
             .build()
         
@@ -91,7 +91,7 @@ class RestTimerService: Service() {
                 val alarmNotification: Notification = alarmNotificationBuilder
                     .setContentTitle(getText(R.string.notification_title))
                     .setContentText("Rest time over!")
-                    .setSmallIcon(R.drawable.ic_notif_gym)
+                    .setSmallIcon(R.drawable.ic_dumbbell)
                     .setTicker(getText(R.string.ticker_text))
                     .build()
 
