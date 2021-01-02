@@ -12,7 +12,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.addTextChangedListener
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -20,6 +22,7 @@ import kotlinx.android.synthetic.main.main_fragment.*
 import r2.studios.lifttime.StartLiftTimeService
 import r2.studios.lifttime.R
 import r2.studios.lifttime.RestTimerService
+import r2.studios.lifttime.databinding.MainFragmentBinding
 
 
 class MainFragment : Fragment() {
@@ -31,21 +34,34 @@ class MainFragment : Fragment() {
     private lateinit var viewModel: MainViewModel
     lateinit private var sharedPreferences: SharedPreferences
 
+    private var ignoreChange = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
-        viewModel.min.observe(this, Observer {
-                min -> etMin.setText(viewModel.min.value.toString().padStart(2, '0'))
-        })
 
-        viewModel.sec.observe(this, Observer {
-                sec -> etSec.setText(viewModel.sec.value.toString().padStart(2, '0'))
-        })
 
-        viewModel.serviceRunning.observe(this, Observer {
-                serviceRunning -> switchGymTime.isChecked = viewModel.serviceRunning.value!!
+
+//        viewModel.min.observe(this, Observer {
+//                min -> etMin.setText(viewModel.min.value.toString().padStart(2, '0'))
+//        })
+//
+//        viewModel.sec.observe(this, Observer {
+//                sec -> etSec.setText(viewModel.sec.value.toString().padStart(2, '0'))
+//        })
+
+//        viewModel.serviceRunning.observe(this, Observer {
+//                serviceRunning -> switchGymTime.isChecked = viewModel.serviceRunning.value!!
+//        })
+
+        viewModel.activeTime.observe(this, Observer {
+            when (viewModel.activeTime.value) {
+                "min" -> keypad.field = etMin
+                "sec" -> keypad.field = etSec
+                else -> keypad.field = null
+            }
         })
 
         val sharedPref = activity?.getSharedPreferences(getString(R.string.shared_pref_name), Context.MODE_PRIVATE) ?: return
@@ -59,7 +75,10 @@ class MainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.main_fragment, container, false)
+        return MainFragmentBinding.inflate(inflater, container, false).apply {
+            lifecycleOwner = viewLifecycleOwner
+            viewmodel = viewModel
+        }.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,8 +88,9 @@ class MainFragment : Fragment() {
         etMin.inputType = InputType.TYPE_NULL
         etSec.inputType = InputType.TYPE_NULL
 
+        handleTimerEditText()
+
 //        etMin.addTextChangedListener(object: TextWatcher {
-//            private var ignoreChange = false
 //            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 //
 //            override fun onTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -78,13 +98,14 @@ class MainFragment : Fragment() {
 //            override fun afterTextChanged(text: Editable?) {
 //                if (!ignoreChange) {
 //                    ignoreChange = true
-//                    etMin.setText(text.toString().padStart(2, '0'))
-//                    viewModel.setMin(Integer.parseInt(text.toString()))
+//                    etMin.removeTextChangedListener(this)
+//                    etMin.setText("00")//text.toString().padStart(2, '0'))
+//                    viewModel.setMin(0)//Integer.parseInt(text.toString()))
 //                    ignoreChange = false
 //                }
 //            }
 //        })
-//
+
 //        etSec.addTextChangedListener(object: TextWatcher {
 //            private var ignoreChange = false
 //            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -94,14 +115,23 @@ class MainFragment : Fragment() {
 //            override fun afterTextChanged(text: Editable?) {
 //                if (!ignoreChange) {
 //                    ignoreChange = true
-//                    etSec.setText(text.toString().padStart(2, '0'))
-//                    viewModel.setSec(Integer.parseInt(text.toString()))
+////                    etSec.setText(text.toString().padStart(2, '0'))
+////                    viewModel.setSec(Integer.parseInt(text.toString()))
 //                    ignoreChange = false
-//
 //                }
 //            }
 //        })
+        handleSwitchPressendEvent()
 
+        viewModel.min.value = 0
+        viewModel.sec.value = "00"
+
+    }
+
+    /***
+        Start service to watch for screen on/off in the background when user presses the switch
+     ***/
+    private fun handleSwitchPressendEvent() {
         switchGymTime.setOnCheckedChangedListener{
             Log.d("MainFragment", "run service")
             if (viewModel.serviceRunning.value!!) {
@@ -118,6 +148,20 @@ class MainFragment : Fragment() {
                 startService()
 
             viewModel.changeServiceStatus()
+        }
+    }
+
+    private fun handleTimerEditText() {
+        etMin.setOnClickListener {
+            etMin.setTextColor(ResourcesCompat.getColor(resources, R.color.colorAccent, null))
+            etSec.setTextColor(ResourcesCompat.getColor(resources, android.R.color.white, null))
+            viewModel.setActiveTime("min")
+        }
+
+        etSec.setOnClickListener {
+            etSec.setTextColor(ResourcesCompat.getColor(resources, R.color.colorAccent, null))
+            etMin.setTextColor(ResourcesCompat.getColor(resources, android.R.color.white, null))
+            viewModel.setActiveTime("sec")
         }
     }
 
@@ -138,18 +182,13 @@ class MainFragment : Fragment() {
     }
 
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-    }
-
     override fun onPause() {
         super.onPause()
         // save data to restore the time and service running state
         val sharedPref = activity?.getSharedPreferences(getString(R.string.shared_pref_name), Context.MODE_PRIVATE) ?: return
         with (sharedPref.edit()) {
-            viewModel.min.value?.let { min -> putInt(getString(R.string.min_key), min) }
-            viewModel.sec.value?.let { sec -> putInt(getString(R.string.sec_key), sec) }
+//            viewModel.min.value?.let { min -> putInt(getString(R.string.min_key), min) }
+//            viewModel.sec.value?.let { sec -> putInt(getString(R.string.sec_key), sec) }
             viewModel.serviceRunning.value?.let { serviceRunning -> putBoolean(getString(R.string.service_key), serviceRunning) }
             apply()
         }
