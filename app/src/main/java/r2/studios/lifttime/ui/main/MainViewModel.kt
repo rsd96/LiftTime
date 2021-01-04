@@ -19,6 +19,8 @@ class MainViewModel : ViewModel() {
             Log.d("ViewModel - int", value.toString())
             var formattedString = ""
             formattedString = value.toString().padStart(2, '0')
+            if (Integer.parseInt(formattedString) > 59)
+                formattedString = "59"
             return formattedString
         }
 
@@ -30,38 +32,24 @@ class MainViewModel : ViewModel() {
 
     }
 
-    private val _min = MutableLiveData<Int>()
-    private val _sec = MutableLiveData<Int>()
-    private val _serviceRunning = MutableLiveData<Boolean>()
+    // whether min or sec time is selected for editing
     private val _activeTime = MutableLiveData<String>()
     val min = MutableLiveData<Int>()
-//        get() = _min
-
-    val sec = MutableLiveData<String>()
-//        get() = _sec
+    val sec = MutableLiveData<Int>()
+    private val _serviceRunning = MutableLiveData<Boolean>()
+    val serviceRunning : LiveData<Boolean>
+        get() = _serviceRunning
 
     init {
+//        test.value = false
         min.value = 0
-        sec.value = "00"
+        sec.value = 0
         _serviceRunning.value = false
         _activeTime.value = "none"
     }
 
-
-    val serviceRunning : LiveData<Boolean>
-        get() = _serviceRunning
-
     val activeTime : LiveData<String>
         get() = _activeTime
-
-
-    fun setMin(min: Int){
-        _min.value = min
-    }
-
-    fun setSec(sec: Int){
-        _sec.value = sec
-    }
 
     fun setServiceRunning(serviceRunning: Boolean){
         _serviceRunning.value = serviceRunning
@@ -75,11 +63,11 @@ class MainViewModel : ViewModel() {
         _serviceRunning.value = _serviceRunning.value != true
     }
 
-    fun addMin() {
-        _min.value = _min.value?.plus(1)
-    }
-
-    fun addSec() {
-        _sec.value = _sec.value?.plus(1)
-    }
+//    fun addMin() {
+//        _min.value = _min.value?.plus(1)
+//    }
+//
+//    fun addSec() {
+//        _sec.value = _sec.value?.plus(1)
+//    }
 }

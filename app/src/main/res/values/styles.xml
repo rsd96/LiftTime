@@ -17,4 +17,11 @@
         <item name="cornerSizeBottomLeft">0dp</item>
     </style>
 
+    <style name="SwitchStyle" parent="Theme.AppCompat.Light">
+        <item name="colorControlActivated">#48ea8b</item>
+        <item name="colorControlNormal">#ff4651</item>
+        <item name="colorControlHighlight">#ff4651</item>
+        <item name="android:colorForeground">#ff4651</item>
+    </style>
+
 </resources>

@@ -24,19 +24,17 @@
             android:id="@+id/lottie_image"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp"
             android:scaleType="centerInside"
-            app:lottie_fileName="animations/bush_up.json"
-            app:lottie_imageAssetsFolder="bush up images"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/keypad" />
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toBottomOf="@+id/switchGymTime"
+            app:lottie_fileName="animations/bush_up.json"
+            app:lottie_imageAssetsFolder="bush up images" />
 
         <EditText
             android:id="@+id/etMin"
@@ -85,13 +83,13 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:textColor="@android:color/white"
             android:textSize="42sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
         <com.konaire.numerickeyboard.NumericKeyboard
             android:id="@+id/keypad"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_margin="8dp"
@@ -101,7 +99,8 @@
             android:layout_marginEnd="16dp"
             android:layout_marginRight="16dp"
             app:keyTextColor="@color/colorAccent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/guideline"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView" />
 
@@ -109,8 +108,8 @@
             android:id="@+id/guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.75" />
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5" />
 
 <!--        <com.google.android.material.card.MaterialCardView-->
 <!--            android:id="@+id/materialCardView"-->
