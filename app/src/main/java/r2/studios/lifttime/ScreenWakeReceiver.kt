@@ -8,6 +8,7 @@ import android.util.Log
 /**
  * Created by Mohamed Ramshad on 28/12/2020.
  */
+
 class ScreenWakeReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == "android.intent.action.SCREEN_ON") {
@@ -21,7 +22,6 @@ class ScreenWakeReceiver: BroadcastReceiver() {
                     timerServiceIntent.putExtra("SEC", sec)
                     context.startService(timerServiceIntent)
                 }
-
             } catch (e: Exception) {
                 e.printStackTrace()
             }
