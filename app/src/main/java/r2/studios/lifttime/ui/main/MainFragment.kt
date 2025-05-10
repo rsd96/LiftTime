@@ -3,29 +3,20 @@ package r2.studios.lifttime.ui.main
 import android.animation.Animator
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.text.Editable
-import android.text.InputType
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.widget.addTextChangedListener
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.airbnb.lottie.Lottie
-import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
-import kotlinx.android.synthetic.main.main_fragment.*
-import r2.studios.lifttime.StartLiftTimeService
 import r2.studios.lifttime.R
 import r2.studios.lifttime.RestTimerService
+import r2.studios.lifttime.StartLiftTimeService
 import r2.studios.lifttime.databinding.MainFragmentBinding
 
 
@@ -38,32 +29,32 @@ class MainFragment : Fragment() {
     private lateinit var viewModel: MainViewModel
 
     var animationQue = mutableListOf<Triple<Int, Int, Boolean>>()
-
+    private var _binding: MainFragmentBinding? = null
+    private val binding get() = _binding!!
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
 
         // place cursor of min/sec edittext to end to allow time entry properly
         viewModel.min.observe(this, Observer {
             if (it == 0)
-                etMin.setSelection(0)
+                binding.etMin.setSelection(0)
             else
-                etMin.setSelection(etMin.text.length)
+                binding.etMin.setSelection(binding.etMin.text.length)
         })
 
         viewModel.sec.observe(this, Observer {
             if (it == 0)
-                etSec.setSelection(0)
+                binding.etSec.setSelection(0)
             else
-                etSec.setSelection(etSec.text.length)
+                binding.etSec.setSelection(binding.etSec.text.length)
         })
 
         viewModel.serviceRunning.observe(this, Observer {serviceRunning->
-            switchGymTime.setOnCheckedChangeListener(null)
+            binding.switchGymTime.setOnCheckedChangeListener(null)
 
-            switchGymTime.isChecked = serviceRunning
+            binding.switchGymTime.isChecked = serviceRunning
 
             if (!serviceRunning) {
 
@@ -86,7 +77,7 @@ class MainFragment : Fragment() {
                 animationQue.add(Triple(92, 159, true))
             }
 
-            switchGymTime.setOnCheckedChangeListener { compoundButton, b ->
+            binding.switchGymTime.setOnCheckedChangeListener { compoundButton, b ->
                 viewModel.changeServiceStatus()
             }
 
@@ -94,23 +85,25 @@ class MainFragment : Fragment() {
 
         })
 
-        viewModel.activeTime.observe(this, Observer {
+        viewModel.activeTime.observe(this) {
             when (viewModel.activeTime.value) {
-                "min" -> keypad.field = etMin
-                "sec" -> keypad.field = etSec
-                else -> keypad.field = null
+                "min" -> binding.keypad.field = binding.etMin
+                "sec" -> binding.keypad.field = binding.etSec
+                else -> binding.keypad.field = null
             }
-        })
+        }
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return MainFragmentBinding.inflate(inflater, container, false).apply {
+        _binding = MainFragmentBinding.inflate(inflater, container, false).apply {
             lifecycleOwner = viewLifecycleOwner
             viewmodel = viewModel
-        }.root
+        }
+
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -120,9 +113,6 @@ class MainFragment : Fragment() {
         loadSavedData()
         playAnimation(0, 74, true)
         animationHandler()
-
-
-
     }
 
     /***
@@ -130,32 +120,30 @@ class MainFragment : Fragment() {
      */
 
     fun playAnimation(startFrame: Int, endFrame: Int, repeat: Boolean) {
-        lottie_image.setMinAndMaxFrame(startFrame, endFrame)
+        binding.lottieImage.setMinAndMaxFrame(startFrame, endFrame)
         if (repeat)
-            lottie_image.repeatCount = LottieDrawable.INFINITE
+            binding.lottieImage.repeatCount = LottieDrawable.INFINITE
         else
-            lottie_image.repeatCount = 1
+            binding.lottieImage.repeatCount = 1
 
-        lottie_image.playAnimation()
+        binding.lottieImage.playAnimation()
     }
 
-    fun animationHandler() {
-        Log.d("Animationg", "isanimating")
-        lottie_image.addAnimatorListener(object: Animator.AnimatorListener {
-            override fun onAnimationStart(p0: Animator?) {}
+    private fun animationHandler() {
+        binding.lottieImage.addAnimatorListener(object: Animator.AnimatorListener {
+            override fun onAnimationStart(p0: Animator) {}
 
-            override fun onAnimationEnd(p0: Animator?) {
+            override fun onAnimationEnd(p0: Animator) {
                 if (animationQue.isNotEmpty()) {
-                    Log.d("Animationg", animationQue[0].toString())
                     val (startFrame, endFrame, repeat) = animationQue[0]
                     playAnimation(startFrame, endFrame, repeat)
                     animationQue.removeAt(0)
                 }
             }
 
-            override fun onAnimationCancel(p0: Animator?) {}
+            override fun onAnimationCancel(p0: Animator) {}
 
-            override fun onAnimationRepeat(p0: Animator?) {
+            override fun onAnimationRepeat(p0: Animator) {
                 Log.d("Animationg", "onanimationrepeat")
                 if (animationQue.isNotEmpty()) {
                     Log.d("Animationg", animationQue[0].toString())
@@ -164,7 +152,6 @@ class MainFragment : Fragment() {
                     animationQue.removeAt(0)
                 }
             }
-
         })
     }
 
@@ -188,15 +175,15 @@ class MainFragment : Fragment() {
      * Highlight either the min or sec edittext when clicked and set it as the currect active edittext
      */
     private fun handleTimerEditText() {
-        etMin.setOnClickListener {
-            etMin.setTextColor(ResourcesCompat.getColor(resources, R.color.colorAccent, null))
-            etSec.setTextColor(ResourcesCompat.getColor(resources, android.R.color.white, null))
+        binding.etMin.setOnClickListener {
+            binding.etMin.setTextColor(ResourcesCompat.getColor(resources, R.color.colorAccent, null))
+            binding.etSec.setTextColor(ResourcesCompat.getColor(resources, android.R.color.white, null))
             viewModel.setActiveTime("min")
         }
 
-        etSec.setOnClickListener {
-            etSec.setTextColor(ResourcesCompat.getColor(resources, R.color.colorAccent, null))
-            etMin.setTextColor(ResourcesCompat.getColor(resources, android.R.color.white, null))
+        binding.etSec.setOnClickListener {
+            binding.etSec.setTextColor(ResourcesCompat.getColor(resources, R.color.colorAccent, null))
+            binding.etMin.setTextColor(ResourcesCompat.getColor(resources, android.R.color.white, null))
             viewModel.setActiveTime("sec")
         }
     }
@@ -236,7 +223,7 @@ class MainFragment : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        lottie_image?.cancelAnimation()
+        binding.lottieImage.cancelAnimation()
     }
 
 }

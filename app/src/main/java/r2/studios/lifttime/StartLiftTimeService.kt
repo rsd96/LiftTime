@@ -34,7 +34,7 @@ class StartLiftTimeService: Service() {
         }
 
         val notificationIntent = Intent(this, MainActivity::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0)
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
 
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
         val notification: Notification = notificationBuilder

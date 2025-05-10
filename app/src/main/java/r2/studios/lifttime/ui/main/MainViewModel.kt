@@ -63,11 +63,5 @@ class MainViewModel : ViewModel() {
         _serviceRunning.value = _serviceRunning.value != true
     }
 
-//    fun addMin() {
-//        _min.value = _min.value?.plus(1)
-//    }
-//
-//    fun addSec() {
-//        _sec.value = _sec.value?.plus(1)
-//    }
+
 }
