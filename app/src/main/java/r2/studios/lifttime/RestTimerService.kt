@@ -6,12 +6,14 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.graphics.Color
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 
 /**
  * Created by Mohamed Ramshad on 28/12/2020.
@@ -56,7 +58,17 @@ class RestTimerService: Service() {
             .build()
         
 
-        startForeground(TIMER_NOTIFICATION_ID, notification)
+        ServiceCompat.startForeground(
+            this,
+            TIMER_NOTIFICATION_ID,
+            notification,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+            } else {
+                0
+            }
+        )
+
         // countdwon timer
         timer = object : CountDownTimer(timeInMilli, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -77,15 +89,7 @@ class RestTimerService: Service() {
             }
 
             override fun onFinish() {
-                // finish rest time, alert user
-//                val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-//                notificationBuilder.setContentText("LIFT TIME!").setOngoing(false)
-//                notificationManager.notify(
-//                    TIMER_NOTIFICATION_ID,
-//                    notificationBuilder.build()
-//                )
-
-                stopForeground(true)
+                ServiceCompat.stopForeground(this@RestTimerService, ServiceCompat.STOP_FOREGROUND_REMOVE)
 
                 val alarmNotificationBuilder = NotificationCompat.Builder(this@RestTimerService, ALARM_CHANNEL_ID)
                 val alarmNotification: Notification = alarmNotificationBuilder
@@ -118,6 +122,8 @@ class RestTimerService: Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        timer.cancel()
+        if (::timer.isInitialized) {
+            timer.cancel()
+        }
     }
 }

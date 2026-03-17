@@ -5,12 +5,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
 import java.util.*
 
 
@@ -19,7 +21,7 @@ import java.util.*
  */
 class StartLiftTimeService: Service() {
 
-    val screenWakeReceiver = ScreenWakeReceiver()
+    private val screenWakeReceiver = ScreenWakeReceiver()
     private val START_LIFT_NOTIFICATION_ID = 1234
     val CHANNEL_ID = "ForegroundServiceChannel"
     val CHANNEL_NAME = "Lift Time Notification"
@@ -55,7 +57,16 @@ class StartLiftTimeService: Service() {
         registerReceiver(screenWakeReceiver, screenFilter)
 
 
-        startForeground(START_LIFT_NOTIFICATION_ID, notification)
+        ServiceCompat.startForeground(
+            this,
+            START_LIFT_NOTIFICATION_ID,
+            notification,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+            } else {
+                0
+            }
+        )
 
 
         return START_NOT_STICKY

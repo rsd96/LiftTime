@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
 
     <application
         android:allowBackup="true"
@@ -12,12 +12,23 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <service android:name=".StartLiftTimeService"
-            android:enabled="true"/>
+        <service
+            android:name=".StartLiftTimeService"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Rest timer and screen state monitoring for gym activities."/>
+        </service>
 
-        <service android:name=".RestTimerService"
-            android:enabled="true"/>
-
+        <service
+            android:name=".RestTimerService"
+            android:enabled="true"
+            android:foregroundServiceType="specialUse"
+            android:exported="false">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Rest timer for gym activities."/>
+        </service>
 
         <receiver android:name=".ScreenWakeReceiver" android:exported="true" android:enabled="true">
             <intent-filter>
