@@ -1,12 +1,17 @@
 package r2.studios.lifttime.ui.main
 
+import android.Manifest
 import android.animation.Animator
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -29,6 +34,17 @@ class MainFragment : Fragment() {
     var animationQue = mutableListOf<Triple<Int, Int, Boolean>>()
     private var _binding: MainFragmentBinding? = null
     private val binding get() = _binding!!
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            viewModel.setServiceRunning(true)
+        } else {
+            Toast.makeText(context, "Notification permission is required to show the timer", Toast.LENGTH_SHORT).show()
+            binding.switchGymTime.isChecked = false
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,10 +71,32 @@ class MainFragment : Fragment() {
                 animationQue.add(Triple(92, 159, true))
             }
 
-            binding.switchGymTime.setOnCheckedChangeListener { _, _ ->
-                viewModel.changeServiceStatus()
+            binding.switchGymTime.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    checkNotificationPermissionAndToggleService()
+                } else {
+                    viewModel.setServiceRunning(false)
+                }
             }
         })
+    }
+
+    private fun checkNotificationPermissionAndToggleService() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    viewModel.setServiceRunning(true)
+                }
+                else -> {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            viewModel.setServiceRunning(true)
+        }
     }
 
     override fun onCreateView(
