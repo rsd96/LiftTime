@@ -13,8 +13,8 @@ android {
         applicationId "r2.studios.lifttime"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 5
-        versionName "5.0"
+        versionCode 6
+        versionName "5.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
